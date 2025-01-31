@@ -9,3 +9,7 @@ def index():
 @app.get('/movies')
 def movies():
   return {'movies':{'movie1','movie2'}}
+
+@app.get('/property/{id}')
+def property(id):
+  return f'This is the page of property - {id}'
