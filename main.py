@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import Set, List
 from uuid import UUID
 from datetime import date, timedelta, datetime, time
+import strawberry
+from strawberry.fastapi import GraphQLRouter
 
 class Event(BaseModel):
   event_id: UUID
@@ -89,3 +91,33 @@ def name(username:str):
 @app.post('/profile')
 def profile(profile:Profile):
   return profile
+
+# ------------------ GraphQL Implementation ------------------
+
+# Define GraphQL types
+@strawberry.type
+class Query:
+    @strawberry.field
+    def hello(self) -> str:
+        return "Hello, GraphQL!"
+
+    @strawberry.field
+    def get_movies(self) -> List[str]:
+        return ["Movie1", "Movie2", "Movie3"]
+
+    @strawberry.field
+    def get_product(self, name: str) -> str:
+        return f"Product: {name}"
+
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
+    def create_product(self, name: str, price: int) -> str:
+        return f"Product {name} created with price {price}"
+
+# Create Schema
+schema = strawberry.Schema(query=Query, mutation=Mutation)
+
+# Add GraphQL router
+graphql_app = GraphQLRouter(schema)
+app.include_router(graphql_app, prefix="/graphql")
